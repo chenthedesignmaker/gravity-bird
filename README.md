@@ -2,6 +2,59 @@
 
 一个有趣的HTML5游戏，玩家通过控制重力方向来收集金币并躲避障碍。
 
+## 部署指南
+
+### 1. 前端部署 (Netlify)
+
+1. Fork 这个仓库到你的 GitHub 账号
+2. 登录 [Netlify](https://www.netlify.com/)
+3. 点击 "New site from Git"
+4. 选择你的 GitHub 仓库
+5. 部署设置：
+   - Build command: 留空
+   - Publish directory: client
+   - Advanced build settings: 无需更改
+
+### 2. 后端部署 (MongoDB Atlas)
+
+1. 创建 [MongoDB Atlas](https://www.mongodb.com/cloud/atlas) 账号
+2. 创建新集群（选择免费层级）
+3. 在 "Database Access" 创建数据库用户
+4. 在 "Network Access" 添加 IP 地址 `0.0.0.0/0`
+5. 获取数据库连接字符串
+
+### 3. 环境配置
+
+在 Netlify 的站点设置中添加以下环境变量：
+- `MONGODB_URI`: 你的 MongoDB 连接字符串
+
+## 本地开发
+
+1. 克隆仓库：
+```bash
+git clone https://github.com/你的用户名/gravity-bird.git
+cd gravity-bird
+```
+
+2. 安装依赖：
+```bash
+cd server
+npm install
+```
+
+3. 创建 `.env` 文件：
+```
+MONGODB_URI=你的MongoDB连接字符串
+PORT=3000
+```
+
+4. 启动服务器：
+```bash
+npm start
+```
+
+5. 在浏览器中打开 `client/index.html`
+
 ## 游戏特点
 
 - 独特的重力翻转机制

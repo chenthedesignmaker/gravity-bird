@@ -5,9 +5,200 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>重力鸟 - 一个有趣的HTML5游戏</title>
     <meta name="description" content="一个有趣的HTML5游戏，通过收集金币提升等级，控制重力方向躲避障碍。">
-    <link rel="stylesheet" href="style.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            display: flex;
+            min-height: 100vh;
+            background: #1a1a1a;
+            font-family: Arial, sans-serif;
+            color: #fff;
+            overflow: hidden;
+        }
+
+        .game-container {
+            flex: 1;
+            position: relative;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background: #000;
+        }
+
+        #gameCanvas {
+            max-width: 100%;
+            max-height: 100vh;
+            background: #4a90e2;
+        }
+
+        .sidebar {
+            width: 300px;
+            padding: 20px;
+            background: #2c3e50;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .leaderboard, .instructions {
+            background: rgba(0, 0, 0, 0.2);
+            padding: 15px;
+            border-radius: 10px;
+        }
+
+        h3 {
+            color: #ffd700;
+            margin-bottom: 15px;
+            text-align: center;
+        }
+
+        #leaderboardContent div {
+            padding: 5px 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        #leaderboardContent div.highlight {
+            color: #ffd700;
+            font-weight: bold;
+        }
+
+        #currentPlayer {
+            color: #4CAF50;
+            margin-bottom: 10px;
+            text-align: center;
+        }
+
+        .instructions p {
+            margin: 10px 0;
+            line-height: 1.5;
+        }
+
+        #gameOver {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(0, 0, 0, 0.9);
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+            z-index: 100;
+        }
+
+        #gameOver.hidden {
+            display: none;
+        }
+
+        #gameOver h2 {
+            color: #ffd700;
+            margin-bottom: 20px;
+        }
+
+        #nameInput {
+            display: block;
+            width: 200px;
+            padding: 10px;
+            margin: 10px auto;
+            border: none;
+            border-radius: 5px;
+            background: #fff;
+            text-align: center;
+        }
+
+        button {
+            padding: 10px 20px;
+            margin: 5px;
+            border: none;
+            border-radius: 5px;
+            background: #4CAF50;
+            color: white;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+
+        button:hover {
+            background: #45a049;
+        }
+
+        .debug-keys {
+            font-size: 0.8em;
+            color: #888;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            padding-top: 10px;
+            margin-top: 20px;
+        }
+
+        #loadingScreen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: #1a1a1a;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+
+        .loading-text {
+            color: #fff;
+            font-size: 24px;
+            text-align: center;
+        }
+
+        #errorScreen {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.9);
+            color: #fff;
+            text-align: center;
+            padding: 20px;
+            z-index: 1000;
+        }
+
+        @media (max-width: 768px) {
+            body {
+                flex-direction: column;
+            }
+            
+            .sidebar {
+                width: 100%;
+                height: auto;
+                max-height: 30vh;
+            }
+            
+            .game-container {
+                height: 70vh;
+            }
+            
+            #gameCanvas {
+                max-height: 70vh;
+            }
+        }
+    </style>
 </head>
 <body>
+    <div id="loadingScreen">
+        <div class="loading-text">游戏加载中...</div>
+    </div>
+    
+    <div id="errorScreen">
+        <h2>出错了！</h2>
+        <p id="errorMessage"></p>
+        <button onclick="location.reload()">重试</button>
+    </div>
+
     <div class="game-container">
         <canvas id="gameCanvas"></canvas>
         <div id="gameOver" class="hidden">
@@ -39,8 +230,37 @@
             </p>
         </div>
     </div>
-    
+
+    <script>
+        // 错误处理函数
+        window.onerror = function(msg, url, lineNo, columnNo, error) {
+            console.error('Error: ' + msg + '\nURL: ' + url + '\nLine: ' + lineNo + '\nColumn: ' + columnNo + '\nError object: ' + JSON.stringify(error));
+            document.getElementById('errorScreen').style.display = 'flex';
+            document.getElementById('errorMessage').textContent = '发生错误：' + msg;
+            return false;
+        };
+
+        // 确保Canvas在加载完成后正确初始化
+        window.addEventListener('load', function() {
+            const canvas = document.getElementById('gameCanvas');
+            if (canvas) {
+                // 设置Canvas大小
+                canvas.width = 320;
+                canvas.height = 480;
+                
+                // 检查Canvas上下文是否可用
+                const ctx = canvas.getContext('2d');
+                if (!ctx) {
+                    document.getElementById('errorScreen').style.display = 'flex';
+                    document.getElementById('errorMessage').textContent = '您的浏览器不支持Canvas，请使用现代浏览器。';
+                    return;
+                }
+                
+                // 隐藏加载屏幕
+                document.getElementById('loadingScreen').style.display = 'none';
+            }
+        });
+    </script>
     <script src="game.js"></script>
 </body>
-</html> 
 </html> 

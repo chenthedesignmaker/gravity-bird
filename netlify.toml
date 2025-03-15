@@ -1,9 +1,1 @@
-[build]
-  base = "client"
-  publish = "."
-  command = "# no build command"
-
-[[redirects]]
-  from = "/api/*"
-  to = "/.netlify/functions/:splat"
-  status = 200 
+ 
