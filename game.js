@@ -227,7 +227,7 @@ function drawBackground() {
 }
 
 // 全球排行榜API
-const API_URL = 'https://your-server-url.com/api'; // 部署后替换为实际的服务器地址
+const API_URL = window.location.origin + '/api';  // 部署后替换为实际的服务器地址
 
 // 获取全球排行榜
 async function fetchGlobalLeaderboard() {
