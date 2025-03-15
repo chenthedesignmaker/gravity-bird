@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>重力鸟 - 一个有趣的HTML5游戏</title>
+    <meta name="description" content="一个有趣的HTML5游戏，通过收集金币提升等级，控制重力方向躲避障碍。">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="game-container">
+        <canvas id="gameCanvas"></canvas>
+        <div id="gameOver" class="hidden">
+            <h2>游戏结束</h2>
+            <p>最终得分: <span id="finalScore">0</span></p>
+            <input type="text" id="nameInput" placeholder="输入你的名字" maxlength="8">
+            <button id="saveScore">保存分数</button>
+            <button id="playAgain">再玩一次</button>
+        </div>
+    </div>
+    
+    <div class="sidebar">
+        <div class="leaderboard">
+            <h3>排行榜</h3>
+            <div id="currentPlayer"></div>
+            <div id="leaderboardContent"></div>
+        </div>
+        <div class="instructions">
+            <h3>游戏说明</h3>
+            <p>- 点击屏幕或按空格键切换重力方向</p>
+            <p>- 收集金币提升等级</p>
+            <p>- 每5个金币升一级</p>
+            <p>- 等级提升会降低重力影响</p>
+            <p>- 躲避绿色管道</p>
+            <p class="debug-keys">
+                测试模式：<br>
+                T键 - 快速获得金币<br>
+                I键 - 切换无敌模式
+            </p>
+        </div>
+    </div>
+    
+    <script src="game.js"></script>
+</body>
+</html> 
+</html> 

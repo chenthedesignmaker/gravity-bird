@@ -1,0 +1,147 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    display: flex;
+    min-height: 100vh;
+    background: #1a1a1a;
+    font-family: Arial, sans-serif;
+    color: #fff;
+    overflow: hidden;
+}
+
+.game-container {
+    flex: 1;
+    position: relative;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background: #000;
+}
+
+#gameCanvas {
+    max-width: 100%;
+    max-height: 100vh;
+    background: #000;
+}
+
+.sidebar {
+    width: 300px;
+    padding: 20px;
+    background: #2c3e50;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.leaderboard, .instructions {
+    background: rgba(0, 0, 0, 0.2);
+    padding: 15px;
+    border-radius: 10px;
+}
+
+h3 {
+    color: #ffd700;
+    margin-bottom: 15px;
+    text-align: center;
+}
+
+#leaderboardContent div {
+    padding: 5px 0;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+#leaderboardContent div.highlight {
+    color: #ffd700;
+    font-weight: bold;
+}
+
+#currentPlayer {
+    color: #4CAF50;
+    margin-bottom: 10px;
+    text-align: center;
+}
+
+.instructions p {
+    margin: 10px 0;
+    line-height: 1.5;
+}
+
+#gameOver {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: rgba(0, 0, 0, 0.9);
+    padding: 20px;
+    border-radius: 10px;
+    text-align: center;
+    z-index: 100;
+}
+
+#gameOver.hidden {
+    display: none;
+}
+
+#gameOver h2 {
+    color: #ffd700;
+    margin-bottom: 20px;
+}
+
+#nameInput {
+    display: block;
+    width: 200px;
+    padding: 10px;
+    margin: 10px auto;
+    border: none;
+    border-radius: 5px;
+    background: #fff;
+    text-align: center;
+}
+
+button {
+    padding: 10px 20px;
+    margin: 5px;
+    border: none;
+    border-radius: 5px;
+    background: #4CAF50;
+    color: white;
+    cursor: pointer;
+    transition: background 0.3s;
+}
+
+button:hover {
+    background: #45a049;
+}
+
+.debug-keys {
+    font-size: 0.8em;
+    color: #888;
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+    padding-top: 10px;
+    margin-top: 20px;
+}
+
+@media (max-width: 768px) {
+    body {
+        flex-direction: column;
+    }
+    
+    .sidebar {
+        width: 100%;
+        height: auto;
+        max-height: 30vh;
+    }
+    
+    .game-container {
+        height: 70vh;
+    }
+    
+    #gameCanvas {
+        max-height: 70vh;
+    }
+} 
