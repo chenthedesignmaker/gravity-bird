@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Gravity Bird - A Fun HTML5 Game</title>
     <meta name="description" content="A fun HTML5 game where you collect coins to level up and control gravity to avoid obstacles.">
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-6213511119031988" crossorigin="anonymous"></script>
     <style>
         * {
             margin: 0;
@@ -89,6 +90,7 @@
             border-radius: 10px;
             text-align: center;
             z-index: 100;
+            min-width: 300px;
         }
 
         #gameOver.hidden {
@@ -167,6 +169,15 @@
             z-index: 1000;
         }
 
+        .ad-container {
+            margin: 20px 0;
+            min-height: 90px;
+            background: rgba(255, 255, 255, 0.1);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
         @media (max-width: 768px) {
             body {
                 flex-direction: column;
@@ -204,6 +215,13 @@
         <div id="gameOver" class="hidden">
             <h2>Game Over</h2>
             <p>Final Score: <span id="finalScore">0</span></p>
+            <div class="ad-container">
+                <!-- Game Over Banner Ad -->
+                <ins class="adsbygoogle"
+                     style="display:inline-block;width:300px;height:90px"
+                     data-ad-client="ca-pub-6213511119031988"
+                     data-ad-slot="YOUR_AD_SLOT_ID"></ins>
+            </div>
             <input type="text" id="nameInput" placeholder="Enter your name" maxlength="8">
             <button id="saveScore">Save Score</button>
             <button id="playAgain">Play Again</button>
