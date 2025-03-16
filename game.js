@@ -64,6 +64,7 @@ let gameStarted = false;
 let countdownValue = 3;
 let lastCountdownTime = 0;
 let gameSpeed = 1; // 添加游戏速度变量
+let lastFrameTime = 0; // 添加上一帧时间变量
 
 // 加载或初始化排行榜
 let leaderboard = JSON.parse(localStorage.getItem('flappyLeaderboard')) || [];
@@ -376,7 +377,7 @@ async function saveScore(name, score) {
 }
 
 // 更新游戏状态
-function update() {
+function update(delta) {
     if (gameOver) return;
     
     if (!gameStarted) {
@@ -398,13 +399,13 @@ function update() {
     }
 
     // 更新小鸟
-    bird.gravity = bird.getGravity() * gameSpeed;
-    bird.velocity += bird.gravity * bird.gravityDirection;
-    bird.y += bird.velocity * gameSpeed;
+    bird.gravity = bird.getGravity();
+    bird.velocity += bird.gravity * bird.gravityDirection * delta;
+    bird.y += bird.velocity * delta;
     
     // 更新翻转动画
     if (bird.flipProgress > 0) {
-        bird.flipProgress -= 0.1;
+        bird.flipProgress -= 0.1 * delta;
     }
 
     // 计算旋转角度（考虑重力方向）
@@ -417,17 +418,17 @@ function update() {
     if (bird.trail.length > bird.getTrailLength()) bird.trail.pop();
 
     // 更新云朵
-    if (Math.random() < 0.02 * gameSpeed) clouds.push(new Cloud());
+    if (Math.random() < 0.02 * delta) clouds.push(new Cloud());
     clouds = clouds.filter(cloud => {
-        cloud.speed = (0.5 + Math.random() * 0.5) * gameSpeed;
-        return cloud.update();
+        cloud.x -= cloud.speed * delta;
+        return cloud.x + cloud.width > 0;
     });
 
     // 更新金币
     coins = coins.filter(coin => {
-        coin.rotation += 0.1 * gameSpeed;
-        coin.oscillation += 0.05 * gameSpeed;
-        coin.x -= pipeSpeed * gameSpeed;
+        coin.rotation += 0.1 * delta;
+        coin.oscillation += 0.05 * delta;
+        coin.x -= pipeSpeed * delta;
         coin.y = coin.initialY + Math.sin(coin.oscillation) * 15;
         return !coin.collected && coin.x + coin.size > 0;
     });
@@ -455,7 +456,12 @@ function update() {
     });
 
     // 更新粒子
-    particles = particles.filter(particle => particle.update());
+    particles = particles.filter(particle => {
+        particle.x += particle.vx * delta;
+        particle.y += particle.vy * delta;
+        particle.life -= 0.02 * delta;
+        return particle.life > 0;
+    });
 
     // 生成新管道和金币
     if (pipes.length === 0 || pipes[pipes.length - 1].x < canvas.width - 200) {
@@ -486,7 +492,7 @@ function update() {
 
     // 更新管道位置
     for (let i = pipes.length - 1; i >= 0; i--) {
-        pipes[i].x -= pipeSpeed * gameSpeed;
+        pipes[i].x -= pipeSpeed * delta;
 
         // 检查得分
         if (!pipes[i].passed && pipes[i].x + pipeWidth < bird.x) {
@@ -675,8 +681,16 @@ function draw() {
 }
 
 // 游戏循环
-function gameLoop() {
-    update();
+function gameLoop(currentTime) {
+    // 计算帧时间差
+    if (lastFrameTime === 0) {
+        lastFrameTime = currentTime;
+    }
+    const deltaTime = (currentTime - lastFrameTime) / (1000 / 60); // 标准化为60fps
+    lastFrameTime = currentTime;
+
+    // 使用deltaTime和gameSpeed更新游戏状态
+    update(deltaTime * gameSpeed);
     draw();
     requestAnimationFrame(gameLoop);
 }
@@ -799,4 +813,4 @@ updateLeaderboard();
 initializeEventListeners();
 
 // 开始游戏
-gameLoop();
+requestAnimationFrame(gameLoop);
