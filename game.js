@@ -63,6 +63,7 @@ const pipeSpeed = 2;
 let gameStarted = false;
 let countdownValue = 3;
 let lastCountdownTime = 0;
+let gameSpeed = 1; // 添加游戏速度变量
 
 // 加载或初始化排行榜
 let leaderboard = JSON.parse(localStorage.getItem('flappyLeaderboard')) || [];
@@ -385,7 +386,7 @@ function update() {
             lastCountdownTime = currentTime;
         }
         
-        if (currentTime - lastCountdownTime >= 1000) {
+        if (currentTime - lastCountdownTime >= 1000 / gameSpeed) {
             countdownValue--;
             lastCountdownTime = currentTime;
             
@@ -397,9 +398,9 @@ function update() {
     }
 
     // 更新小鸟
-    bird.gravity = bird.getGravity();
+    bird.gravity = bird.getGravity() * gameSpeed;
     bird.velocity += bird.gravity * bird.gravityDirection;
-    bird.y += bird.velocity;
+    bird.y += bird.velocity * gameSpeed;
     
     // 更新翻转动画
     if (bird.flipProgress > 0) {
@@ -416,11 +417,20 @@ function update() {
     if (bird.trail.length > bird.getTrailLength()) bird.trail.pop();
 
     // 更新云朵
-    if (Math.random() < 0.02) clouds.push(new Cloud());
-    clouds = clouds.filter(cloud => cloud.update());
+    if (Math.random() < 0.02 * gameSpeed) clouds.push(new Cloud());
+    clouds = clouds.filter(cloud => {
+        cloud.speed = (0.5 + Math.random() * 0.5) * gameSpeed;
+        return cloud.update();
+    });
 
     // 更新金币
-    coins = coins.filter(coin => coin.update());
+    coins = coins.filter(coin => {
+        coin.rotation += 0.1 * gameSpeed;
+        coin.oscillation += 0.05 * gameSpeed;
+        coin.x -= pipeSpeed * gameSpeed;
+        coin.y = coin.initialY + Math.sin(coin.oscillation) * 15;
+        return !coin.collected && coin.x + coin.size > 0;
+    });
 
     // 检查金币收集
     coins.forEach(coin => {
@@ -476,7 +486,7 @@ function update() {
 
     // 更新管道位置
     for (let i = pipes.length - 1; i >= 0; i--) {
-        pipes[i].x -= pipeSpeed;
+        pipes[i].x -= pipeSpeed * gameSpeed;
 
         // 检查得分
         if (!pipes[i].passed && pipes[i].x + pipeWidth < bird.x) {
@@ -512,6 +522,13 @@ function update() {
         const finalScoreSpan = document.getElementById('finalScore');
         gameOverScreen.classList.remove('hidden');
         finalScoreSpan.textContent = score;
+        
+        // Initialize the ad
+        try {
+            (adsbygoogle = window.adsbygoogle || []).push({});
+        } catch (e) {
+            console.error('Ad initialization error:', e);
+        }
     }
 }
 
@@ -731,7 +748,7 @@ function initializeEventListeners() {
             if (!gameOver && gameStarted) {
                 // 翻转重力
                 bird.gravityDirection *= -1;
-                bird.velocity = bird.gravityDirection * -bird.getJumpForce();
+                bird.velocity = bird.gravityDirection * -bird.getJumpForce() * gameSpeed;
                 bird.flipProgress = 1;
                 
                 // 添加重力翻转特效
@@ -765,6 +782,14 @@ function initializeEventListeners() {
             if (bird.invincible) {
                 createLevelUpEffect(bird.x, bird.y);
             }
+        }
+
+        // 添加速度控制快捷键
+        if (e.code === 'KeyS') {
+            // 在1x和2x速度之间切换
+            gameSpeed = gameSpeed === 1 ? 2 : 1;
+            // 视觉反馈
+            createLevelUpEffect(bird.x, bird.y);
         }
     });
 }
