@@ -226,6 +226,28 @@ function drawBackground() {
     ctx.fillRect(0, 0, canvas.width, canvas.height);
 }
 
+// API 配置
+const API_BASE_URL = 'https://gravity-bird-server.onrender.com';
+const MAX_RETRIES = 3;
+const RETRY_DELAY = 1000;
+
+// 带重试的 fetch 函数
+async function fetchWithRetry(url, options = {}, retries = MAX_RETRIES) {
+    for (let i = 0; i < retries; i++) {
+        try {
+            const response = await fetch(url, options);
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+            return response;
+        } catch (error) {
+            console.log(`尝试 ${i + 1}/${retries} 失败:`, error);
+            if (i === retries - 1) throw error;
+            await new Promise(resolve => setTimeout(resolve, RETRY_DELAY));
+        }
+    }
+}
+
 // 更新排行榜显示
 async function updateLeaderboard() {
     const leaderboardContent = document.getElementById('leaderboardContent');
@@ -233,10 +255,7 @@ async function updateLeaderboard() {
     
     try {
         // 获取全局排行榜数据
-        const response = await fetch('http://localhost:3000/leaderboard');
-        if (!response.ok) {
-            throw new Error('获取排行榜失败');
-        }
+        const response = await fetchWithRetry(`${API_BASE_URL}/leaderboard`);
         const globalLeaderboard = await response.json();
         
         // 清空当前内容
@@ -257,6 +276,12 @@ async function updateLeaderboard() {
         });
     } catch (error) {
         console.error('更新排行榜失败:', error);
+        // 显示错误消息
+        const errorDiv = document.createElement('div');
+        errorDiv.style.color = '#ff4444';
+        errorDiv.textContent = '无法连接到服务器，显示本地排行榜';
+        leaderboardContent.appendChild(errorDiv);
+        
         // 如果获取全局排行榜失败，显示本地排行榜作为后备
         const localLeaderboard = JSON.parse(localStorage.getItem('flappyLeaderboard') || '[]');
         localLeaderboard.forEach((entry, index) => {
@@ -290,17 +315,13 @@ async function saveScore(name, score) {
     
     try {
         // 提交分数到服务器
-        const response = await fetch('http://localhost:3000/scores', {
+        const response = await fetchWithRetry(`${API_BASE_URL}/scores`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
             },
             body: JSON.stringify(newScore)
         });
-        
-        if (!response.ok) {
-            throw new Error('提交分数失败');
-        }
         
         // 保存成功后更新排行榜显示
         await updateLeaderboard();
@@ -325,7 +346,7 @@ async function saveScore(name, score) {
         
         // 显示本地保存消息
         const message = document.createElement('div');
-        message.textContent = '分数已保存到本地！';
+        message.textContent = '服务器连接失败，分数已保存到本地！';
         message.style.color = '#FFA500';
         message.style.marginTop = '10px';
         document.getElementById('leaderboardContent').prepend(message);

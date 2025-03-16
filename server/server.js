@@ -132,13 +132,16 @@ const server = app.listen(port, '0.0.0.0', () => {
 });
 
 // 优雅关闭
-process.on('SIGTERM', () => {
+process.on('SIGTERM', async () => {
     console.log('收到 SIGTERM 信号，准备关闭服务器...');
-    server.close(() => {
+    try {
+        await new Promise((resolve) => server.close(resolve));
         console.log('服务器已关闭');
-        mongoose.connection.close(false, () => {
-            console.log('MongoDB 连接已关闭');
-            process.exit(0);
-        });
-    });
+        await mongoose.connection.close();
+        console.log('MongoDB 连接已关闭');
+        process.exit(0);
+    } catch (error) {
+        console.error('关闭服务器时出错:', error);
+        process.exit(1);
+    }
 }); 
