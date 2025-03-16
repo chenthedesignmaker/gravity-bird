@@ -241,7 +241,7 @@ async function fetchWithRetry(url, options = {}, retries = MAX_RETRIES) {
             }
             return response;
         } catch (error) {
-            console.log(`尝试 ${i + 1}/${retries} 失败:`, error);
+            console.log(`Attempt ${i + 1}/${retries} failed:`, error);
             if (i === retries - 1) throw error;
             await new Promise(resolve => setTimeout(resolve, RETRY_DELAY));
         }
@@ -264,8 +264,8 @@ async function updateLeaderboard() {
         // 显示全局排行榜
         globalLeaderboard.forEach((entry, index) => {
             const div = document.createElement('div');
-            const date = new Date(entry.date).toLocaleDateString('zh-CN');
-            div.textContent = `${index + 1}. ${entry.name}: ${entry.score}分 等级${entry.level} 金币${entry.coins} (${date})`;
+            const date = new Date(entry.date).toLocaleDateString('en-US');
+            div.textContent = `${index + 1}. ${entry.name}: ${entry.score} pts Level ${entry.level} Coins ${entry.coins} (${date})`;
             
             // 如果是当前玩家的记录，高亮显示
             if (entry.name === playerName && entry.score === score) {
@@ -275,19 +275,19 @@ async function updateLeaderboard() {
             leaderboardContent.appendChild(div);
         });
     } catch (error) {
-        console.error('更新排行榜失败:', error);
+        console.error('Failed to update leaderboard:', error);
         // 显示错误消息
         const errorDiv = document.createElement('div');
         errorDiv.style.color = '#ff4444';
-        errorDiv.textContent = '无法连接到服务器，显示本地排行榜';
+        errorDiv.textContent = 'Unable to connect to server, showing local leaderboard';
         leaderboardContent.appendChild(errorDiv);
         
         // 如果获取全局排行榜失败，显示本地排行榜作为后备
         const localLeaderboard = JSON.parse(localStorage.getItem('flappyLeaderboard') || '[]');
         localLeaderboard.forEach((entry, index) => {
             const div = document.createElement('div');
-            const date = new Date(entry.date).toLocaleDateString('zh-CN');
-            div.textContent = `${index + 1}. ${entry.name}: ${entry.score}分 等级${entry.level} 金币${entry.coins} (${date}) [本地]`;
+            const date = new Date(entry.date).toLocaleDateString('en-US');
+            div.textContent = `${index + 1}. ${entry.name}: ${entry.score} pts Level ${entry.level} Coins ${entry.coins} (${date}) [Local]`;
             if (entry.name === playerName && entry.score === score) {
                 div.classList.add('highlight');
             }
@@ -297,7 +297,7 @@ async function updateLeaderboard() {
     
     // 更新当前玩家显示
     if (playerName && !gameOver) {
-        currentPlayerDiv.textContent = `当前玩家: ${playerName} | 等级: ${bird.level} | 金币: ${bird.coins}`;
+        currentPlayerDiv.textContent = `Current Player: ${playerName} | Level: ${bird.level} | Coins: ${bird.coins}`;
     } else {
         currentPlayerDiv.textContent = '';
     }
@@ -308,7 +308,7 @@ async function saveScore(name, score) {
     const saveButton = document.getElementById('saveScore');
     // 禁用保存按钮，防止重复提交
     saveButton.disabled = true;
-    saveButton.textContent = '保存中...';
+    saveButton.textContent = 'Saving...';
     
     const newScore = {
         name,
@@ -333,7 +333,7 @@ async function saveScore(name, score) {
         
         // 显示成功消息
         const message = document.createElement('div');
-        message.textContent = '分数保存成功！';
+        message.textContent = 'Score saved successfully!';
         message.style.color = '#4CAF50';
         message.style.marginTop = '10px';
         document.getElementById('leaderboardContent').prepend(message);
@@ -344,13 +344,13 @@ async function saveScore(name, score) {
         // 隐藏保存按钮，显示已保存状态
         saveButton.style.display = 'none';
         const savedText = document.createElement('div');
-        savedText.textContent = '分数已保存';
+        savedText.textContent = 'Score saved';
         savedText.style.color = '#4CAF50';
         savedText.style.padding = '10px';
         saveButton.parentNode.appendChild(savedText);
         
     } catch (error) {
-        console.error('保存分数失败:', error);
+        console.error('Failed to save score:', error);
         // 如果提交到服务器失败，保存到本地作为后备
         const localLeaderboard = JSON.parse(localStorage.getItem('flappyLeaderboard') || '[]');
         localLeaderboard.push(newScore);
@@ -360,7 +360,7 @@ async function saveScore(name, score) {
         
         // 显示本地保存消息
         const message = document.createElement('div');
-        message.textContent = '服务器连接失败，分数已保存到本地！';
+        message.textContent = 'Server connection failed, score saved locally!';
         message.style.color = '#FFA500';
         message.style.marginTop = '10px';
         document.getElementById('leaderboardContent').prepend(message);
@@ -370,7 +370,7 @@ async function saveScore(name, score) {
         
         // 重新启用保存按钮，允许重试
         saveButton.disabled = false;
-        saveButton.textContent = '重试保存';
+        saveButton.textContent = 'Retry Save';
     }
 }
 
@@ -605,10 +605,10 @@ function draw() {
     ctx.lineWidth = 3;
     ctx.font = 'bold 24px Arial';
     ctx.textAlign = 'left';
-    ctx.strokeText(`分数: ${score}`, 10, 30);
-    ctx.fillText(`分数: ${score}`, 10, 30);
-    ctx.strokeText(`最高分: ${maxScore}`, 10, 60);
-    ctx.fillText(`最高分: ${maxScore}`, 10, 60);
+    ctx.strokeText(`Score: ${score}`, 10, 30);
+    ctx.fillText(`Score: ${score}`, 10, 30);
+    ctx.strokeText(`High Score: ${maxScore}`, 10, 60);
+    ctx.fillText(`High Score: ${maxScore}`, 10, 60);
 
     // 绘制等级和金币信息
     ctx.fillStyle = 'white';
@@ -616,10 +616,10 @@ function draw() {
     ctx.lineWidth = 3;
     ctx.font = 'bold 24px Arial';
     ctx.textAlign = 'left';
-    ctx.strokeText(`等级: ${bird.level}`, 10, 90);
-    ctx.fillText(`等级: ${bird.level}`, 10, 90);
-    ctx.strokeText(`金币: ${bird.coins}`, 10, 120);
-    ctx.fillText(`金币: ${bird.coins}`, 10, 120);
+    ctx.strokeText(`Level: ${bird.level}`, 10, 90);
+    ctx.fillText(`Level: ${bird.level}`, 10, 90);
+    ctx.strokeText(`Coins: ${bird.coins}`, 10, 120);
+    ctx.fillText(`Coins: ${bird.coins}`, 10, 120);
 
     // 绘制倒计时
     if (!gameStarted && !gameOver) {
@@ -639,8 +639,8 @@ function draw() {
             ctx.strokeText(countdownValue, canvas.width/2, canvas.height/2);
             ctx.fillText(countdownValue, canvas.width/2, canvas.height/2);
         } else {
-            ctx.strokeText('开始!', canvas.width/2, canvas.height/2);
-            ctx.fillText('开始!', canvas.width/2, canvas.height/2);
+            ctx.strokeText('START!', canvas.width/2, canvas.height/2);
+            ctx.fillText('START!', canvas.width/2, canvas.height/2);
         }
         ctx.restore();
     }
@@ -652,8 +652,8 @@ function draw() {
         ctx.lineWidth = 3;
         ctx.font = 'bold 20px Arial';
         ctx.textAlign = 'right';
-        ctx.strokeText('无敌模式开启', canvas.width - 10, 30);
-        ctx.fillText('无敌模式开启', canvas.width - 10, 30);
+        ctx.strokeText('Invincible Mode ON', canvas.width - 10, 30);
+        ctx.fillText('Invincible Mode ON', canvas.width - 10, 30);
     }
 }
 
@@ -688,7 +688,7 @@ function resetGame() {
     const saveButton = document.getElementById('saveScore');
     saveButton.disabled = false;
     saveButton.style.display = 'inline-block';
-    saveButton.textContent = '保存分数';
+    saveButton.textContent = 'Save Score';
     
     // 移除已保存状态文本（如果存在）
     const savedText = saveButton.parentNode.querySelector('div');
