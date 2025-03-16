@@ -1,111 +1,84 @@
-# 重力鸟 (Gravity Bird)
+# Gravity Bird 游戏
 
-一个有趣的HTML5游戏，玩家通过控制重力方向来收集金币并躲避障碍。
+一个有趣的重力翻转小游戏，玩家通过点击或按空格键来控制小鸟，躲避障碍物并收集金币。
 
-## 部署指南
+## 特性
 
-### 1. 前端部署 (Netlify)
-
-1. Fork 这个仓库到你的 GitHub 账号
-2. 登录 [Netlify](https://www.netlify.com/)
-3. 点击 "New site from Git"
-4. 选择你的 GitHub 仓库
-5. 部署设置：
-   - Build command: 留空
-   - Publish directory: client
-   - Advanced build settings: 无需更改
-
-### 2. 后端部署 (MongoDB Atlas)
-
-1. 创建 [MongoDB Atlas](https://www.mongodb.com/cloud/atlas) 账号
-2. 创建新集群（选择免费层级）
-3. 在 "Database Access" 创建数据库用户
-4. 在 "Network Access" 添加 IP 地址 `0.0.0.0/0`
-5. 获取数据库连接字符串
-
-### 3. 环境配置
-
-在 Netlify 的站点设置中添加以下环境变量：
-- `MONGODB_URI`: 你的 MongoDB 连接字符串
-
-## 本地开发
-
-1. 克隆仓库：
-```bash
-git clone https://github.com/你的用户名/gravity-bird.git
-cd gravity-bird
-```
-
-2. 安装依赖：
-```bash
-cd server
-npm install
-```
-
-3. 创建 `.env` 文件：
-```
-MONGODB_URI=你的MongoDB连接字符串
-PORT=3000
-```
-
-4. 启动服务器：
-```bash
-npm start
-```
-
-5. 在浏览器中打开 `client/index.html`
-
-## 游戏特点
-
-- 独特的重力翻转机制
-- 金币收集和等级系统
-- 炫酷的视觉效果
-- 在线排行榜
-- 完全响应式设计，支持移动设备
+- 重力翻转机制
+- 金币收集系统
+- 等级提升机制
+- 全球排行榜
+- 粒子特效
+- 云朵背景
+- 平滑的动画效果
 
 ## 游戏玩法
 
-1. 点击屏幕或按空格键来切换重力方向
-2. 收集金币来升级（每5个金币升一级）
-3. 等级提升会降低重力影响，让控制更容易
-4. 躲避绿色管道
-5. 尽可能获得高分！
+- 点击屏幕或按空格键来翻转重力
+- 收集金币提升等级
+- 躲避管道障碍物
+- 每5个金币提升一个等级
+- 等级提升会增加得分并提供特殊能力
 
-## 技术特点
+## 开发环境设置
 
-- 纯原生JavaScript编写
-- 使用HTML5 Canvas进行游戏渲染
-- 本地存储实现排行榜功能
-- 响应式设计适配各种设备
-
-## 如何部署
-
-1. 将所有文件上传到网站服务器
-2. 确保服务器支持静态文件托管
-3. 访问index.html即可开始游戏
-
-### 文件结构
-
-```
-├── index.html    // 游戏主页面
-├── style.css     // 样式表
-├── game.js       // 游戏逻辑
-└── README.md     // 说明文档
+### 客户端
+```bash
+# 直接在浏览器中打开
+open index.html
 ```
 
-## 开发者模式
+### 服务器
+```bash
+# 进入服务器目录
+cd server
 
-游戏包含两个测试模式快捷键：
-- T键：快速获得金币和升级
-- I键：切换无敌模式
+# 安装依赖
+npm install
 
-## 浏览器支持
+# 设置环境变量
+创建 .env 文件并添加：
+MONGODB_URI=你的MongoDB连接字符串
+PORT=3000
 
-- Chrome (推荐)
-- Firefox
-- Safari
-- Edge
+# 启动服务器
+npm start
+```
+
+## 技术栈
+
+- 前端：原生 JavaScript、HTML5 Canvas
+- 后端：Node.js、Express
+- 数据库：MongoDB Atlas
+- 部署：Netlify（前端）、Heroku（后端，可选）
+
+## 测试模式
+
+- 按 'T' 键：增加5个金币和额外分数
+- 按 'I' 键：切换无敌模式
+
+## 在线演示
+
+[在线游戏链接]
+
+## 本地开发
+
+1. 克隆仓库
+2. 打开 index.html
+3. 启动后端服务器（可选）
+
+## 部署
+
+### 前端部署（Netlify）
+- 将代码推送到 GitHub
+- 在 Netlify 中连接 GitHub 仓库
+- 设置构建命令和发布目录
+
+### 后端部署（可选）
+- 创建 Heroku 应用
+- 设置环境变量
+- 部署服务器代码
 
 ## 许可证
 
-MIT License 
+MIT 

@@ -226,55 +226,27 @@ function drawBackground() {
     ctx.fillRect(0, 0, canvas.width, canvas.height);
 }
 
-// 全球排行榜API
-const API_URL = window.location.origin + '/api';  // 部署后替换为实际的服务器地址
-
-// 获取全球排行榜
-async function fetchGlobalLeaderboard() {
-    try {
-        const response = await fetch(`${API_URL}/scores`);
-        const scores = await response.json();
-        return scores;
-    } catch (error) {
-        console.error('获取排行榜失败:', error);
-        return [];
-    }
-}
-
-// 提交分数到全球排行榜
-async function submitGlobalScore(name, score, level, coins) {
-    try {
-        const response = await fetch(`${API_URL}/scores`, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({ name, score, level, coins })
-        });
-        return await response.json();
-    } catch (error) {
-        console.error('提交分数失败:', error);
-        return null;
-    }
-}
-
-// 修改更新排行榜显示函数
+// 更新排行榜显示
 async function updateLeaderboard() {
     const leaderboardContent = document.getElementById('leaderboardContent');
     const currentPlayerDiv = document.getElementById('currentPlayer');
     
-    // 清空当前内容
-    leaderboardContent.innerHTML = '';
-    
     try {
-        // 获取全球排行榜数据
-        const globalScores = await fetchGlobalLeaderboard();
+        // 获取全局排行榜数据
+        const response = await fetch('http://localhost:3000/leaderboard');
+        if (!response.ok) {
+            throw new Error('获取排行榜失败');
+        }
+        const globalLeaderboard = await response.json();
         
-        // 添加每个记录
-        globalScores.forEach((entry, index) => {
+        // 清空当前内容
+        leaderboardContent.innerHTML = '';
+        
+        // 显示全局排行榜
+        globalLeaderboard.forEach((entry, index) => {
             const div = document.createElement('div');
-            const date = new Date(entry.date).toLocaleDateString();
-            div.textContent = `${index + 1}. ${entry.name}: ${entry.score} (${date})`;
+            const date = new Date(entry.date).toLocaleDateString('zh-CN');
+            div.textContent = `${index + 1}. ${entry.name}: ${entry.score}分 等级${entry.level} 金币${entry.coins} (${date})`;
             
             // 如果是当前玩家的记录，高亮显示
             if (entry.name === playerName && entry.score === score) {
@@ -284,10 +256,13 @@ async function updateLeaderboard() {
             leaderboardContent.appendChild(div);
         });
     } catch (error) {
-        // 如果获取全球排行榜失败，回退到本地排行榜
-        leaderboard.forEach((entry, index) => {
+        console.error('更新排行榜失败:', error);
+        // 如果获取全局排行榜失败，显示本地排行榜作为后备
+        const localLeaderboard = JSON.parse(localStorage.getItem('flappyLeaderboard') || '[]');
+        localLeaderboard.forEach((entry, index) => {
             const div = document.createElement('div');
-            div.textContent = `${index + 1}. ${entry.name}: ${entry.score}`;
+            const date = new Date(entry.date).toLocaleDateString('zh-CN');
+            div.textContent = `${index + 1}. ${entry.name}: ${entry.score}分 等级${entry.level} 金币${entry.coins} (${date}) [本地]`;
             if (entry.name === playerName && entry.score === score) {
                 div.classList.add('highlight');
             }
@@ -297,25 +272,67 @@ async function updateLeaderboard() {
     
     // 更新当前玩家显示
     if (playerName && !gameOver) {
-        currentPlayerDiv.textContent = `当前玩家: ${playerName}`;
+        currentPlayerDiv.textContent = `当前玩家: ${playerName} | 等级: ${bird.level} | 金币: ${bird.coins}`;
     } else {
         currentPlayerDiv.textContent = '';
     }
 }
 
-// 修改保存分数函数
+// 保存分数
 async function saveScore(name, score) {
-    // 保存到本地排行榜
-    leaderboard.push({ name, score, date: new Date().toLocaleDateString() });
-    leaderboard.sort((a, b) => b.score - a.score);
-    leaderboard = leaderboard.slice(0, 10);
-    localStorage.setItem('flappyLeaderboard', JSON.stringify(leaderboard));
+    const newScore = {
+        name,
+        score,
+        level: bird.level,
+        coins: bird.coins,
+        date: new Date().toISOString()
+    };
     
-    // 保存到全球排行榜
-    await submitGlobalScore(name, score, bird.level, bird.coins);
-    
-    // 更新显示
-    updateLeaderboard();
+    try {
+        // 提交分数到服务器
+        const response = await fetch('http://localhost:3000/scores', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(newScore)
+        });
+        
+        if (!response.ok) {
+            throw new Error('提交分数失败');
+        }
+        
+        // 保存成功后更新排行榜显示
+        await updateLeaderboard();
+        
+        // 显示成功消息
+        const message = document.createElement('div');
+        message.textContent = '分数保存成功！';
+        message.style.color = '#4CAF50';
+        message.style.marginTop = '10px';
+        document.getElementById('leaderboardContent').prepend(message);
+        
+        // 3秒后移除消息
+        setTimeout(() => message.remove(), 3000);
+    } catch (error) {
+        console.error('保存分数失败:', error);
+        // 如果提交到服务器失败，保存到本地作为后备
+        const localLeaderboard = JSON.parse(localStorage.getItem('flappyLeaderboard') || '[]');
+        localLeaderboard.push(newScore);
+        localLeaderboard.sort((a, b) => b.score - a.score);
+        const top10 = localLeaderboard.slice(0, 10);
+        localStorage.setItem('flappyLeaderboard', JSON.stringify(top10));
+        
+        // 显示本地保存消息
+        const message = document.createElement('div');
+        message.textContent = '分数已保存到本地！';
+        message.style.color = '#FFA500';
+        message.style.marginTop = '10px';
+        document.getElementById('leaderboardContent').prepend(message);
+        
+        // 更新显示
+        await updateLeaderboard();
+    }
 }
 
 // 更新游戏状态
