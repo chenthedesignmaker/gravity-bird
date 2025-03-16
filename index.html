@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>Gravity Bird - A Fun HTML5 Game</title>
     <meta name="description" content="A fun HTML5 game where you collect coins to level up and control gravity to avoid obstacles.">
     <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-6213511119031988" crossorigin="anonymous"></script>
@@ -11,15 +11,26 @@
             margin: 0;
             padding: 0;
             box-sizing: border-box;
+            -webkit-touch-callout: none;
+            -webkit-user-select: none;
+            user-select: none;
+        }
+
+        html, body {
+            position: fixed;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            overscroll-behavior: none;
+            background: #1a1a1a;
         }
 
         body {
             display: flex;
-            min-height: 100vh;
-            background: #1a1a1a;
+            flex-direction: column;
             font-family: Arial, sans-serif;
             color: #fff;
-            overflow: hidden;
+            padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
         }
 
         .game-container {
@@ -181,20 +192,30 @@
         @media (max-width: 768px) {
             body {
                 flex-direction: column;
+                height: 100%;
+                position: fixed;
+                width: 100%;
             }
             
             .sidebar {
                 width: 100%;
                 height: auto;
-                max-height: 30vh;
+                max-height: 30%;
+                overflow-y: auto;
+                -webkit-overflow-scrolling: touch;
             }
             
             .game-container {
-                height: 70vh;
+                height: 70%;
+                width: 100%;
+                position: relative;
             }
             
             #gameCanvas {
-                max-height: 70vh;
+                max-height: 100%;
+                max-width: 100%;
+                width: auto;
+                height: auto;
             }
         }
     </style>
