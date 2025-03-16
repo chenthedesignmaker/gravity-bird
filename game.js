@@ -305,6 +305,11 @@ async function updateLeaderboard() {
 
 // 保存分数
 async function saveScore(name, score) {
+    const saveButton = document.getElementById('saveScore');
+    // 禁用保存按钮，防止重复提交
+    saveButton.disabled = true;
+    saveButton.textContent = '保存中...';
+    
     const newScore = {
         name,
         score,
@@ -335,6 +340,15 @@ async function saveScore(name, score) {
         
         // 3秒后移除消息
         setTimeout(() => message.remove(), 3000);
+        
+        // 隐藏保存按钮，显示已保存状态
+        saveButton.style.display = 'none';
+        const savedText = document.createElement('div');
+        savedText.textContent = '分数已保存';
+        savedText.style.color = '#4CAF50';
+        savedText.style.padding = '10px';
+        saveButton.parentNode.appendChild(savedText);
+        
     } catch (error) {
         console.error('保存分数失败:', error);
         // 如果提交到服务器失败，保存到本地作为后备
@@ -353,6 +367,10 @@ async function saveScore(name, score) {
         
         // 更新显示
         await updateLeaderboard();
+        
+        // 重新启用保存按钮，允许重试
+        saveButton.disabled = false;
+        saveButton.textContent = '重试保存';
     }
 }
 
@@ -665,6 +683,18 @@ function resetGame() {
     document.getElementById('gameOver').classList.add('hidden');
     document.getElementById('nameInput').value = '';
     bird.invincible = false;
+    
+    // 重置保存按钮状态
+    const saveButton = document.getElementById('saveScore');
+    saveButton.disabled = false;
+    saveButton.style.display = 'inline-block';
+    saveButton.textContent = '保存分数';
+    
+    // 移除已保存状态文本（如果存在）
+    const savedText = saveButton.parentNode.querySelector('div');
+    if (savedText) {
+        savedText.remove();
+    }
 }
 
 // 初始化事件监听
