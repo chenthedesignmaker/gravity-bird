@@ -17,7 +17,6 @@
         }
 
         html, body {
-            position: fixed;
             width: 100%;
             height: 100%;
             overflow: hidden;
@@ -27,19 +26,19 @@
 
         body {
             display: flex;
-            flex-direction: column;
             font-family: Arial, sans-serif;
             color: #fff;
             padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
         }
 
         .game-container {
-            flex: 1;
+            flex: 2;
             position: relative;
             display: flex;
             justify-content: center;
             align-items: center;
             background: #000;
+            min-width: 320px;
         }
 
         #gameCanvas {
@@ -56,12 +55,14 @@
             display: flex;
             flex-direction: column;
             gap: 20px;
+            flex: 1;
         }
 
         .leaderboard, .instructions {
             background: rgba(0, 0, 0, 0.2);
             padding: 15px;
             border-radius: 10px;
+            height: fit-content;
         }
 
         h3 {
@@ -189,24 +190,21 @@
             align-items: center;
         }
 
-        @media (max-width: 768px) {
+        @media (max-width: 1024px) {
             body {
                 flex-direction: column;
-                height: 100%;
-                position: fixed;
-                width: 100%;
             }
             
             .sidebar {
                 width: 100%;
                 height: auto;
-                max-height: 30%;
+                max-height: 30vh;
                 overflow-y: auto;
                 -webkit-overflow-scrolling: touch;
             }
             
             .game-container {
-                height: 70%;
+                height: 70vh;
                 width: 100%;
                 position: relative;
             }
@@ -229,6 +227,23 @@
         <h2>Error!</h2>
         <p id="errorMessage"></p>
         <button onclick="location.reload()">Retry</button>
+    </div>
+
+    <div class="sidebar">
+        <div class="instructions">
+            <h3>How to Play</h3>
+            <p>- Click or press Space to flip gravity</p>
+            <p>- Collect coins to level up</p>
+            <p>- Level up every 5 coins</p>
+            <p>- Higher levels reduce gravity effect</p>
+            <p>- Avoid green pipes</p>
+            <p class="debug-keys">
+                Test Mode:<br>
+                T key - Quick coins<br>
+                I key - Toggle invincible mode<br>
+                S key - Toggle game speed (1x/2x)
+            </p>
+        </div>
     </div>
 
     <div class="game-container">
@@ -254,20 +269,6 @@
             <h3>Leaderboard</h3>
             <div id="currentPlayer"></div>
             <div id="leaderboardContent"></div>
-        </div>
-        <div class="instructions">
-            <h3>How to Play</h3>
-            <p>- Click or press Space to flip gravity</p>
-            <p>- Collect coins to level up</p>
-            <p>- Level up every 5 coins</p>
-            <p>- Higher levels reduce gravity effect</p>
-            <p>- Avoid green pipes</p>
-            <p class="debug-keys">
-                Test Mode:<br>
-                T key - Quick coins<br>
-                I key - Toggle invincible mode<br>
-                S key - Toggle game speed (1x/2x)
-            </p>
         </div>
     </div>
 
