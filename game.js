@@ -576,29 +576,43 @@ function draw() {
     drawBackground();
 
     // 绘制云朵
-    clouds.forEach(cloud => cloud.draw());
+    clouds.forEach(cloud => {
+        ctx.save();
+        ctx.globalAlpha = cloud.opacity;
+        ctx.drawImage(SPRITES.cloud, cloud.x, cloud.y, cloud.width, cloud.height);
+        ctx.restore();
+    });
 
     // 绘制管道
     pipes.forEach(pipe => {
-        // 添加渐变效果
-        const gradient = ctx.createLinearGradient(pipe.x, 0, pipe.x + pipe.width, 0);
-        gradient.addColorStop(0, '#27ae60');
-        gradient.addColorStop(1, '#2ecc71');
-        ctx.fillStyle = gradient;
-        ctx.fillRect(pipe.x, pipe.y, pipe.width, pipe.height);
+        ctx.save();
+        if (pipe.isTop) {
+            // 上方管道需要翻转
+            ctx.translate(pipe.x + pipe.width / 2, pipe.y + pipe.height / 2);
+            ctx.scale(1, -1);
+            ctx.translate(-(pipe.x + pipe.width / 2), -(pipe.y + pipe.height / 2));
+        }
+        ctx.drawImage(SPRITES.pipe, pipe.x, pipe.y, pipe.width, pipe.height);
+        ctx.restore();
     });
 
     // 绘制金币
-    coins.forEach(coin => coin.draw());
+    coins.forEach(coin => {
+        ctx.save();
+        ctx.translate(coin.x + coin.size/2, coin.y + coin.size/2);
+        ctx.rotate(coin.rotation);
+        ctx.drawImage(SPRITES.coin, -coin.size/2, -coin.size/2, coin.size, coin.size);
+        ctx.restore();
+    });
 
     // 绘制小鸟尾迹
     bird.trail.forEach((pos, i) => {
         const alpha = (1 - i/bird.getTrailLength()) * 0.2;
         ctx.save();
+        ctx.globalAlpha = alpha;
         ctx.translate(pos.x + bird.size/2, pos.y + bird.size/2);
         ctx.rotate(pos.rotation);
-        ctx.fillStyle = `${bird.getColor()}${Math.floor(alpha * 255).toString(16).padStart(2, '0')}`;
-        ctx.fillRect(-bird.size/2, -bird.size/2, bird.size, bird.size);
+        ctx.drawImage(SPRITES.bird, -bird.size/2, -bird.size/2, bird.size, bird.size);
         ctx.restore();
     });
 
@@ -606,17 +620,7 @@ function draw() {
     ctx.save();
     ctx.translate(bird.x + bird.size/2, bird.y + bird.size/2);
     ctx.rotate(bird.rotation);
-    
-    // 绘制小鸟主体
-    ctx.fillStyle = bird.getColor();
-    ctx.fillRect(-bird.size/2, -bird.size/2, bird.size, bird.size);
-    
-    // 绘制小鸟眼睛
-    ctx.fillStyle = '#000';
-    ctx.beginPath();
-    ctx.arc(bird.size/4, -bird.size/4, bird.size/8, 0, Math.PI * 2);
-    ctx.fill();
-    
+    ctx.drawImage(SPRITES.bird, -bird.size/2, -bird.size/2, bird.size, bird.size);
     ctx.restore();
 
     // 绘制粒子
