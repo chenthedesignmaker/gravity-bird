@@ -1,3 +1,6 @@
+// 导入精灵图像
+import SPRITES from './assets/sprites.js';
+
 // 获取画布和上下文
 const canvas = document.getElementById('gameCanvas');
 const ctx = canvas.getContext('2d');
