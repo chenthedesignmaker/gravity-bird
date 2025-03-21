@@ -38,20 +38,23 @@
             justify-content: center;
             align-items: center;
             background: #000;
-            min-width: 480px;
+            min-width: 720px;
             padding: 20px;
         }
 
         #gameCanvas {
             max-width: 100%;
-            max-height: 100vh;
+            max-height: 95vh;
             background: #4a90e2;
             border-radius: 10px;
             box-shadow: 0 0 20px rgba(0, 0, 0, 0.3);
+            width: auto;
+            height: auto;
+            object-fit: contain;
         }
 
         .sidebar {
-            width: 300px;
+            width: 250px;
             padding: 20px;
             background: #2c3e50;
             overflow-y: auto;
@@ -59,7 +62,7 @@
             flex-direction: column;
             gap: 20px;
             flex: 1;
-            min-width: 250px;
+            min-width: 200px;
         }
 
         .leaderboard, .instructions {

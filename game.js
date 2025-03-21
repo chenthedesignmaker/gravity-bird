@@ -2,15 +2,15 @@
 import SPRITES from './assets/sprites.js';
 
 // 游戏版本号
-const GAME_VERSION = '1.0.0';
+const GAME_VERSION = '1.0.1';
 
 // 获取画布和上下文
 const canvas = document.getElementById('gameCanvas');
 const ctx = canvas.getContext('2d');
 
 // 设置画布大小
-canvas.width = 480;
-canvas.height = 720;
+canvas.width = 720;  // 增加宽度
+canvas.height = 960; // 增加高度
 
 // 游戏变量
 let bird = {
