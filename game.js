@@ -6,8 +6,8 @@ const canvas = document.getElementById('gameCanvas');
 const ctx = canvas.getContext('2d');
 
 // 设置画布大小
-canvas.width = 320;
-canvas.height = 480;
+canvas.width = 480;
+canvas.height = 720;
 
 // 游戏变量
 let bird = {
