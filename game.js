@@ -2,19 +2,19 @@
 import SPRITES from './assets/sprites.js';
 
 // 游戏版本号
-const GAME_VERSION = '1.0.1';
+const GAME_VERSION = '1.0.2';
 
 // 获取画布和上下文
 const canvas = document.getElementById('gameCanvas');
 const ctx = canvas.getContext('2d');
 
 // 设置画布大小
-canvas.width = 720;  // 增加宽度
-canvas.height = 960; // 增加高度
+canvas.width = 1200;  // 显著增加宽度
+canvas.height = 1600; // 显著增加高度
 
 // 游戏变量
 let bird = {
-    x: 50,
+    x: 100, // 调整小鸟的起始位置
     y: canvas.height / 2,
     velocity: 0,
     gravity: 0.5,

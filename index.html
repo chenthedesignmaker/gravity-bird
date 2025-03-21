@@ -32,19 +32,19 @@
         }
 
         .game-container {
-            flex: 2;
+            flex: 3;
             position: relative;
             display: flex;
             justify-content: center;
             align-items: center;
             background: #000;
-            min-width: 720px;
+            min-width: 1200px;
             padding: 20px;
         }
 
         #gameCanvas {
             max-width: 100%;
-            max-height: 95vh;
+            max-height: 98vh;
             background: #4a90e2;
             border-radius: 10px;
             box-shadow: 0 0 20px rgba(0, 0, 0, 0.3);
@@ -54,15 +54,15 @@
         }
 
         .sidebar {
-            width: 250px;
+            width: 300px;
             padding: 20px;
             background: #2c3e50;
             overflow-y: auto;
             display: flex;
             flex-direction: column;
             gap: 20px;
-            flex: 1;
-            min-width: 200px;
+            flex: 0 0 auto;
+            min-width: 250px;
         }
 
         .leaderboard, .instructions {
@@ -224,6 +224,17 @@
                 max-width: 100%;
                 width: auto;
                 height: auto;
+            }
+        }
+
+        @media (min-width: 2560px) {
+            .game-container {
+                min-width: 1600px;
+            }
+            
+            .sidebar {
+                width: 400px;
+                min-width: 300px;
             }
         }
     </style>
