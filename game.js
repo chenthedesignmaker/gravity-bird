@@ -37,14 +37,14 @@ let bird = {
     velocity: 0,
     gravity: 0.5,
     gravityDirection: 1,
-    size: 40, // 增大基础尺寸
+    size: 120, // 增大小鸟尺寸到原来的3倍
     rotation: 0,
     trail: [],
     flipProgress: 0,
     coins: 0,
     level: 1,
     baseGravity: 0.5,
-    baseJumpForce: 6,
+    baseJumpForce: 12, // 增加跳跃力以适应更大的尺寸
     invincible: false,
     // 等级特权
     getGravity() {
@@ -489,7 +489,7 @@ function update(delta) {
     });
 
     // 生成新管道和金币
-    if (pipes.length === 0 || pipes[pipes.length - 1].x < canvas.width - 200) {
+    if (pipes.length === 0 || pipes[pipes.length - 1].x < canvas.width - 400) { // 增加管道间距
         const pipe = createPipe();
         pipes.push(pipe);
         
@@ -499,17 +499,17 @@ function update(delta) {
             pipe.y - pipeGap/2;
         
         // 总是生成金币
-        const coinCount = 3; // 固定生成3个金币
-        const spacing = 40; // 金币之间的间距
-        const totalWidth = (coinCount - 1) * spacing; // 总宽度
+        const coinCount = 3;
+        const spacing = 80; // 增加金币间距
+        const totalWidth = (coinCount - 1) * spacing;
         
         for (let i = 0; i < coinCount; i++) {
-            const offset = (i - (coinCount-1)/2) * spacing; // 均匀分布金币
-            const coinX = pipe.x + pipeWidth/2; // 将金币放在管道中间
+            const offset = (i - (coinCount-1)/2) * spacing;
+            const coinX = pipe.x + pipeWidth/2;
             const coinY = gapCenter + offset;
             
             // 确保金币在安全范围内
-            if (coinY > 50 && coinY < canvas.height - 50) {
+            if (coinY > 150 && coinY < canvas.height - 150) { // 调整安全范围
                 coins.push(new Coin(coinX, coinY));
             }
         }
