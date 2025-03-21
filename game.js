@@ -2,27 +2,45 @@
 import SPRITES from './assets/sprites.js';
 
 // 游戏版本号
-const GAME_VERSION = '1.0.2';
+const GAME_VERSION = '1.0.3';
 
 // 获取画布和上下文
 const canvas = document.getElementById('gameCanvas');
 const ctx = canvas.getContext('2d');
 
+// 基准尺寸（设计尺寸）
+const BASE_WIDTH = 1200;
+const BASE_HEIGHT = 1600;
+
 // 设置画布大小
-canvas.width = 1200;  // 显著增加宽度
-canvas.height = 1600; // 显著增加高度
+canvas.width = BASE_WIDTH;
+canvas.height = BASE_HEIGHT;
+
+// 缩放因子
+let scale = 1;
+
+// 更新缩放因子
+function updateScale() {
+    const displayWidth = canvas.clientWidth;
+    const displayHeight = canvas.clientHeight;
+    scale = Math.min(displayWidth / BASE_WIDTH, displayHeight / BASE_HEIGHT);
+}
+
+// 初始更新缩放
+updateScale();
+window.addEventListener('resize', updateScale);
 
 // 游戏变量
 let bird = {
-    x: 100, // 调整小鸟的起始位置
+    x: 100,
     y: canvas.height / 2,
     velocity: 0,
     gravity: 0.5,
-    gravityDirection: 1, // 1 表示向下，-1 表示向上
-    size: 20,
+    gravityDirection: 1,
+    size: 40, // 增大基础尺寸
     rotation: 0,
     trail: [],
-    flipProgress: 0, // 翻转动画进度
+    flipProgress: 0,
     coins: 0,
     level: 1,
     baseGravity: 0.5,
@@ -40,16 +58,16 @@ let bird = {
     },
     getColor() {
         const colors = [
-            '#ffd700', // 等级1：金色
-            '#ff4500', // 等级2：红橙色
-            '#9400d3', // 等级3：紫色
-            '#00ffff', // 等级4：青色
-            '#ff1493', // 等级5：粉色
-            '#32cd32', // 等级6：酸橙绿
-            '#4169e1', // 等级7：皇家蓝
-            '#ff69b4', // 等级8：热粉色
-            '#daa520', // 等级9：金菊色
-            '#ff0000'  // 等级10：鲜红色
+            '#ffd700',
+            '#ff4500',
+            '#9400d3',
+            '#00ffff',
+            '#ff1493',
+            '#32cd32',
+            '#4169e1',
+            '#ff69b4',
+            '#daa520',
+            '#ff0000'
         ];
         return colors[Math.min(this.level - 1, colors.length - 1)];
     }
@@ -63,9 +81,9 @@ let score = 0;
 let maxScore = 0;
 let gameOver = false;
 let playerName = '';
-const pipeWidth = 50;
-const pipeGap = 150;
-const pipeSpeed = 2;
+const pipeWidth = 100; // 增大基础尺寸
+const pipeGap = 300;   // 增大基础尺寸
+const pipeSpeed = 4;   // 增加速度以匹配更大的尺寸
 let gameStarted = false;
 let countdownValue = 3;
 let lastCountdownTime = 0;
@@ -84,9 +102,9 @@ class Cloud {
     constructor() {
         this.x = canvas.width;
         this.y = Math.random() * canvas.height;
-        this.width = 40 + Math.random() * 60;
-        this.height = 20 + Math.random() * 30;
-        this.speed = 0.5 + Math.random() * 0.5;
+        this.width = 80 + Math.random() * 120; // 增大基础尺寸
+        this.height = 40 + Math.random() * 60; // 增大基础尺寸
+        this.speed = 1 + Math.random(); // 增加速度
         this.opacity = 0.3 + Math.random() * 0.3;
     }
 
@@ -110,10 +128,11 @@ class Particle {
     constructor(x, y, color = '#ffd700') {
         this.x = x;
         this.y = y;
-        this.vx = (Math.random() - 0.5) * 4;
-        this.vy = (Math.random() - 0.5) * 4;
+        this.vx = (Math.random() - 0.5) * 8; // 增加速度
+        this.vy = (Math.random() - 0.5) * 8; // 增加速度
         this.life = 1;
         this.color = color;
+        this.size = 6; // 增大基础尺寸
     }
 
     update() {
@@ -126,7 +145,7 @@ class Particle {
     draw() {
         ctx.fillStyle = `${this.color}${Math.floor(this.life * 255).toString(16).padStart(2, '0')}`;
         ctx.beginPath();
-        ctx.arc(this.x, this.y, 3, 0, Math.PI * 2);
+        ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
         ctx.fill();
     }
 }
@@ -136,13 +155,13 @@ class Coin {
     constructor(x, y) {
         this.x = x;
         this.y = y;
-        this.initialY = y; // 保存初始Y位置
-        this.size = 25;
+        this.initialY = y;
+        this.size = 50; // 增大基础尺寸
         this.rotation = 0;
         this.collected = false;
         this.value = 1;
         this.oscillation = Math.random() * Math.PI * 2;
-        this.glowSize = 35;
+        this.glowSize = 70; // 增大光晕尺寸
     }
 
     update() {
@@ -578,6 +597,11 @@ function createCoinCollectEffect(x, y) {
 
 // 绘制游戏画面
 function draw() {
+    ctx.save();
+    
+    // 清除画布
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    
     // 绘制背景
     drawBackground();
 
@@ -593,7 +617,6 @@ function draw() {
     pipes.forEach(pipe => {
         ctx.save();
         if (pipe.isTop) {
-            // 上方管道需要翻转
             ctx.translate(pipe.x + pipe.width / 2, pipe.y + pipe.height / 2);
             ctx.scale(1, -1);
             ctx.translate(-(pipe.x + pipe.width / 2), -(pipe.y + pipe.height / 2));
@@ -603,13 +626,7 @@ function draw() {
     });
 
     // 绘制金币
-    coins.forEach(coin => {
-        ctx.save();
-        ctx.translate(coin.x + coin.size/2, coin.y + coin.size/2);
-        ctx.rotate(coin.rotation);
-        ctx.drawImage(SPRITES.coin, -coin.size/2, -coin.size/2, coin.size, coin.size);
-        ctx.restore();
-    });
+    coins.forEach(coin => coin.draw());
 
     // 绘制小鸟尾迹
     bird.trail.forEach((pos, i) => {
@@ -632,27 +649,20 @@ function draw() {
     // 绘制粒子
     particles.forEach(particle => particle.draw());
 
-    // 绘制分数
+    // 绘制UI文本
     ctx.fillStyle = 'white';
     ctx.strokeStyle = 'black';
     ctx.lineWidth = 3;
-    ctx.font = 'bold 24px Arial';
+    ctx.font = 'bold 48px Arial'; // 增大字体大小
     ctx.textAlign = 'left';
-    ctx.strokeText(`Score: ${score}`, 10, 30);
-    ctx.fillText(`Score: ${score}`, 10, 30);
-    ctx.strokeText(`High Score: ${maxScore}`, 10, 60);
-    ctx.fillText(`High Score: ${maxScore}`, 10, 60);
-
-    // 绘制等级和金币信息
-    ctx.fillStyle = 'white';
-    ctx.strokeStyle = 'black';
-    ctx.lineWidth = 3;
-    ctx.font = 'bold 24px Arial';
-    ctx.textAlign = 'left';
-    ctx.strokeText(`Level: ${bird.level}`, 10, 90);
-    ctx.fillText(`Level: ${bird.level}`, 10, 90);
-    ctx.strokeText(`Coins: ${bird.coins}`, 10, 120);
-    ctx.fillText(`Coins: ${bird.coins}`, 10, 120);
+    ctx.strokeText(`Score: ${score}`, 20, 60);
+    ctx.fillText(`Score: ${score}`, 20, 60);
+    ctx.strokeText(`High Score: ${maxScore}`, 20, 120);
+    ctx.fillText(`High Score: ${maxScore}`, 20, 120);
+    ctx.strokeText(`Level: ${bird.level}`, 20, 180);
+    ctx.fillText(`Level: ${bird.level}`, 20, 180);
+    ctx.strokeText(`Coins: ${bird.coins}`, 20, 240);
+    ctx.fillText(`Coins: ${bird.coins}`, 20, 240);
 
     // 绘制倒计时
     if (!gameStarted && !gameOver) {
@@ -660,11 +670,10 @@ function draw() {
         ctx.fillStyle = 'white';
         ctx.strokeStyle = 'black';
         ctx.lineWidth = 5;
-        ctx.font = 'bold 72px Arial';
+        ctx.font = 'bold 144px Arial'; // 增大字体大小
         ctx.textAlign = 'center';
         ctx.textBaseline = 'middle';
         
-        // 添加缩放动画
         const scale = 1 + Math.sin((Date.now() - lastCountdownTime) / 1000 * Math.PI) * 0.2;
         ctx.scale(scale, scale);
         
@@ -678,25 +687,27 @@ function draw() {
         ctx.restore();
     }
 
-    // 在最上方添加测试模式提示
+    // 绘制测试模式提示
     if (bird.invincible) {
         ctx.fillStyle = 'yellow';
         ctx.strokeStyle = 'black';
         ctx.lineWidth = 3;
-        ctx.font = 'bold 20px Arial';
+        ctx.font = 'bold 40px Arial'; // 增大字体大小
         ctx.textAlign = 'right';
-        ctx.strokeText('Invincible Mode ON', canvas.width - 10, 30);
-        ctx.fillText('Invincible Mode ON', canvas.width - 10, 30);
+        ctx.strokeText('Invincible Mode ON', canvas.width - 20, 60);
+        ctx.fillText('Invincible Mode ON', canvas.width - 20, 60);
     }
 
     // 添加版本号显示
     ctx.fillStyle = 'rgba(255, 255, 255, 0.5)';
     ctx.strokeStyle = 'rgba(0, 0, 0, 0.5)';
     ctx.lineWidth = 2;
-    ctx.font = '12px Arial';
+    ctx.font = '24px Arial'; // 增大字体大小
     ctx.textAlign = 'right';
-    ctx.strokeText(`v${GAME_VERSION}`, canvas.width - 5, canvas.height - 5);
-    ctx.fillText(`v${GAME_VERSION}`, canvas.width - 5, canvas.height - 5);
+    ctx.strokeText(`v${GAME_VERSION}`, canvas.width - 10, canvas.height - 10);
+    ctx.fillText(`v${GAME_VERSION}`, canvas.width - 10, canvas.height - 10);
+
+    ctx.restore();
 }
 
 // 游戏循环
