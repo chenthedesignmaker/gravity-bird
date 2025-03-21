@@ -1,6 +1,9 @@
 // 导入精灵图像
 import SPRITES from './assets/sprites.js';
 
+// 游戏版本号
+const GAME_VERSION = '1.0.0';
+
 // 获取画布和上下文
 const canvas = document.getElementById('gameCanvas');
 const ctx = canvas.getContext('2d');
@@ -685,6 +688,15 @@ function draw() {
         ctx.strokeText('Invincible Mode ON', canvas.width - 10, 30);
         ctx.fillText('Invincible Mode ON', canvas.width - 10, 30);
     }
+
+    // 添加版本号显示
+    ctx.fillStyle = 'rgba(255, 255, 255, 0.5)';
+    ctx.strokeStyle = 'rgba(0, 0, 0, 0.5)';
+    ctx.lineWidth = 2;
+    ctx.font = '12px Arial';
+    ctx.textAlign = 'right';
+    ctx.strokeText(`v${GAME_VERSION}`, canvas.width - 5, canvas.height - 5);
+    ctx.fillText(`v${GAME_VERSION}`, canvas.width - 5, canvas.height - 5);
 }
 
 // 游戏循环
