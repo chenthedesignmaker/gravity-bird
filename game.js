@@ -2,7 +2,7 @@
 import SPRITES from './assets/sprites.js';
 
 // 游戏版本号
-const GAME_VERSION = '1.0.3';
+const GAME_VERSION = '1.0.4';
 
 // 获取画布和上下文
 const canvas = document.getElementById('gameCanvas');
@@ -37,14 +37,14 @@ let bird = {
     velocity: 0,
     gravity: 0.5,
     gravityDirection: 1,
-    size: 120, // 增大小鸟尺寸到原来的3倍
+    size: 120, // 基础尺寸
     rotation: 0,
     trail: [],
     flipProgress: 0,
     coins: 0,
     level: 1,
     baseGravity: 0.5,
-    baseJumpForce: 12, // 增加跳跃力以适应更大的尺寸
+    baseJumpForce: 12,
     invincible: false,
     // 等级特权
     getGravity() {
@@ -55,6 +55,10 @@ let bird = {
     },
     getTrailLength() {
         return 5 + Math.floor(this.level * 1.5);
+    },
+    getSize() {
+        // 每升一级增加10%的尺寸
+        return this.size * (1 + (this.level - 1) * 0.1);
     },
     getColor() {
         const colors = [
@@ -214,11 +218,12 @@ class Coin {
     }
 
     checkCollision(bird) {
+        const currentBirdSize = bird.getSize();
         const distance = Math.sqrt(
-            Math.pow(this.x + this.size/2 - (bird.x + bird.size/2), 2) +
-            Math.pow(this.y + this.size/2 - (bird.y + bird.size/2), 2)
+            Math.pow(this.x + this.size/2 - (bird.x + currentBirdSize/2), 2) +
+            Math.pow(this.y + this.size/2 - (bird.y + currentBirdSize/2), 2)
         );
-        return distance < (this.size/2 + bird.size/2);
+        return distance < (this.size/2 + currentBirdSize/2);
     }
 }
 
@@ -489,7 +494,7 @@ function update(delta) {
     });
 
     // 生成新管道和金币
-    if (pipes.length === 0 || pipes[pipes.length - 1].x < canvas.width - 400) { // 增加管道间距
+    if (pipes.length === 0 || pipes[pipes.length - 1].x < canvas.width - 500) { // 增加管道间距到500px
         const pipe = createPipe();
         pipes.push(pipe);
         
@@ -500,7 +505,7 @@ function update(delta) {
         
         // 总是生成金币
         const coinCount = 3;
-        const spacing = 80; // 增加金币间距
+        const spacing = 80;
         const totalWidth = (coinCount - 1) * spacing;
         
         for (let i = 0; i < coinCount; i++) {
@@ -509,7 +514,7 @@ function update(delta) {
             const coinY = gapCenter + offset;
             
             // 确保金币在安全范围内
-            if (coinY > 150 && coinY < canvas.height - 150) { // 调整安全范围
+            if (coinY > 150 && coinY < canvas.height - 150) {
                 coins.push(new Coin(coinX, coinY));
             }
         }
@@ -536,7 +541,8 @@ function update(delta) {
     }
 
     // 碰撞检测
-    if (!bird.invincible && (bird.y < 0 || bird.y + bird.size > canvas.height)) {
+    const currentSize = bird.getSize();
+    if (!bird.invincible && (bird.y < 0 || bird.y + currentSize > canvas.height)) {
         gameOver = true;
         createExplosion(bird.x, bird.y);
     }
@@ -574,9 +580,10 @@ function createExplosion(x, y) {
 // 碰撞检测
 function checkCollision(bird, pipe) {
     if (bird.invincible) return false; // 无敌模式下不会碰撞
-    return bird.x + bird.size > pipe.x && 
+    const currentSize = bird.getSize();
+    return bird.x + currentSize > pipe.x && 
            bird.x < pipe.x + pipe.width && 
-           bird.y + bird.size > pipe.y && 
+           bird.y + currentSize > pipe.y && 
            bird.y < pipe.y + pipe.height;
 }
 
@@ -631,19 +638,21 @@ function draw() {
     // 绘制小鸟尾迹
     bird.trail.forEach((pos, i) => {
         const alpha = (1 - i/bird.getTrailLength()) * 0.2;
+        const currentSize = bird.getSize();
         ctx.save();
         ctx.globalAlpha = alpha;
-        ctx.translate(pos.x + bird.size/2, pos.y + bird.size/2);
+        ctx.translate(pos.x + currentSize/2, pos.y + currentSize/2);
         ctx.rotate(pos.rotation);
-        ctx.drawImage(SPRITES.bird, -bird.size/2, -bird.size/2, bird.size, bird.size);
+        ctx.drawImage(SPRITES.bird, -currentSize/2, -currentSize/2, currentSize, currentSize);
         ctx.restore();
     });
 
     // 绘制小鸟
     ctx.save();
-    ctx.translate(bird.x + bird.size/2, bird.y + bird.size/2);
+    const currentSize = bird.getSize();
+    ctx.translate(bird.x + currentSize/2, bird.y + currentSize/2);
     ctx.rotate(bird.rotation);
-    ctx.drawImage(SPRITES.bird, -bird.size/2, -bird.size/2, bird.size, bird.size);
+    ctx.drawImage(SPRITES.bird, -currentSize/2, -currentSize/2, currentSize, currentSize);
     ctx.restore();
 
     // 绘制粒子
